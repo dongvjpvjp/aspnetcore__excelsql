@@ -1,0 +1,195 @@
+﻿<div class="card">
+    <div div class="card-body">
+        <h3 class="text-center">XXXXXXXX</h3>
+        <div class="text-center">
+            <a class="btn btn-sm btn-primary" href="~/Asset/Excel/Template.xlsx"><i class="fas fa-download"></i>Download Excel Template File</a>
+            <button class="btn btn-sm btn-primary" onclick="$('#upload').click()"><i class="far fa-file-excel"></i>Upload Excel Data File </button>
+        </div>
+        <script>
+            var data_mor, data_aft;
+        </script>
+        @(Html.DevExtreme().DataGrid<ExReport.Models.ExData>().ID("GRID")
+            .DataSource( d => d.Mvc().Controller("ExData").LoadAction("GetExData").InsertAction("AddExData").UpdateAction("UpdateExData").DeleteAction("DeleteExData").Key("ID"))
+            .ShowBorders(true).ShowRowLines(true)
+            .Editing(e => e.AllowAdding(true).AllowDeleting(true)
+                           .AllowUpdating(true).Mode(GridEditMode.Popup).UseIcons(true)
+                           .Form( f=>f.ColCount(4)
+                                    .Items(item =>{
+        item.AddSimpleFor(x => x.ID);
+        item.AddSimpleFor(x => x.Department);
+        item.AddSimpleFor(x => x.Workshop);
+        item.AddSimpleFor(x => x.Line_no);
+        item.AddSimpleFor(x => x.Emp_id);
+        item.AddSimpleFor(x => x.Emp_name);
+        item.AddSimpleFor(x => x.F8T9);
+        item.AddSimpleFor(x => x.F9T10);
+        item.AddSimpleFor(x => x.F10T11);
+        item.AddSimpleFor(x => x.F11T12);
+        item.AddSimpleFor(x => x.F12T1230);
+        item.AddSimpleFor(x => x.F1330T1430);
+        item.AddSimpleFor(x => x.F1430T1530);
+        item.AddSimpleFor(x => x.F1530T1630);
+        item.AddSimpleFor(x => x.F1630T1730);
+        item.AddSimpleFor(x => x.F1730T1830);
+    })
+                           )
+            )
+            .Columns( item =>{
+        item.AddFor(x => x.ID);
+        item.AddFor(x => x.Department);
+        item.AddFor(x => x.Workshop);
+        item.AddFor(x => x.Line_no);
+        item.AddFor(x => x.Emp_id);
+        item.AddFor(x => x.Emp_name);
+
+        item.AddFor(x => x.F8T9).Caption("8:00-9:00");
+        item.AddFor(x => x.F9T10).Caption("9:00-10:00");
+        item.AddFor(x => x.F10T11).Caption("10:00-11:00");
+        item.AddFor(x => x.F11T12).Caption("11:00-12:00");
+        item.AddFor(x => x.F12T1230).Caption("12:00-12:30");
+        item.Add().Caption("TongSang").CalculateCellValue(@<text>
+                function(data) {
+            data_mor = data.F8T9 + data.F9T10 + data.F10T11 + data.F11T12 + data.F12T1230
+                    return data_mor
+                }
+            </text>);
+
+        item.AddFor(x => x.F1330T1430).Caption("13:30-14:30");
+        item.AddFor(x => x.F1430T1530).Caption("14:30-15:30");
+        item.AddFor(x => x.F1530T1630).Caption("15:30-16:30");
+        item.AddFor(x => x.F1630T1730).Caption("16:30-17:30");
+        item.AddFor(x => x.F1730T1830).Caption("17:30-18:30");
+        item.Add().Caption("TongChieu").CalculateCellValue(@<text>
+            function(data) {
+                data_aft = data.F1330T1430 + data.F1430T1530 + data.F1530T1630 + data.F1630T1730 + data.F1730T1830
+                return data_aft
+            }
+        </text>);
+        item.Add().Caption("TongNgay").CalculateCellValue(@<text>
+            function(data) {
+                return data_mor + data_aft
+            }
+        </text>);
+
+    })
+        )
+
+    </div>
+</div>
+<form enctype="multipart/form-data" style="display:none">
+    <input id="upload" type=file name="files[]">
+</form>
+@section scripts{
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.8.0/jszip.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.8.0/xlsx.js"></script>
+
+
+    <script>
+        // Define Func
+        var ExcelToJSON = function () {
+
+            this.parseExcel = function (file, callBack) {
+                var reader = new FileReader();
+
+                reader.onload = function (e) {
+                    var data = e.target.result;
+                    var workbook = XLSX.read(data, {
+                        type: 'binary'
+                    });
+                    workbook.SheetNames.forEach(function (sheetName) {
+                        var XL_row_object = XLSX.utils.sheet_to_row_object_array(workbook.Sheets[sheetName]);
+
+                        callBack(XL_row_object);
+                    });
+
+                };
+
+                reader.onerror = function (ex) {
+                    console.log(ex);
+                };
+
+                reader.readAsBinaryString(file);
+            };
+        };
+        function handleFileSelect(evt) {
+            var files = evt.target.files; // FileList object
+            var xl2json = new ExcelToJSON();
+            xl2json.parseExcel(files[0], Logger);
+        }
+    </script>
+    <script>
+        var ERROR_NO_DATA = "Không có dữ liệu , xin kiểm tra lại !!!!!";
+
+        $('#upload').change(function (evt) {
+            var files = evt.target.files; // FileList object
+            if (files.length > 0) {
+                var xl2json = new ExcelToJSON();
+                xl2json.parseExcel(files[0], ParseExcelData);
+            }
+        });
+
+        async function ParseExcelData(result) {
+            console.log(result);
+            if (result.length == 0) {
+                alert(ERROR_NO_DATA);
+                return;
+            }
+            else {
+                result = result.slice(2).filter(x => x.hasOwnProperty("Department"));
+                console.log(result);
+               // const grid = await fetch("/ExData/GetExData")
+               // const grid_data = await grid.json();
+                Upload(result, 0);
+                // !grid_data.data.length ? Upload(result, 'post',"/ExData/AddExData") : Upload_Update(result, grid_data.data);
+            }
+        }
+
+     /*   function Upload(dataList, method, url) {
+                var upload = {
+                    method: `${method}`,
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    }, body: JSON.stringify(dataList)
+                }
+            fetch(url, upload).then(() => {
+                DevExpress.ui.notify("Import Data From Excel !! Total Successfull Records : " + dataList.length, 'success', 5000);
+                $("#GRID").dxDataGrid("getDataSource").reload();
+            })   
+        }
+        */
+      /*  function Upload_Update(dataList, gridData) {
+            var newdata = dataList.reduce((res,data) => {
+                gridData.forEach( item => {
+                    if (data.Department === item.Department && data.Workshop === item.Workshop && data.Line_no === item.Line_no && data.Emp_id === item.Emp_id && data.Emp_name === item.Emp_name) {
+                        data = {
+                            ID:item.ID,...data
+                        }
+                        res.push(data);
+                    }
+                })
+                return res;
+            },[])
+           console.log(newdata)
+           Upload(newdata, 'Put',"/ExData/UpdateExData");
+        } */
+
+        function Upload(dataList, index) {
+            if (index < dataList.length) {
+                var values = JSON.stringify(dataList[index]);
+                var upload = {
+                    method: `post`,
+                   headers: {
+                       'Accept': 'application/json',
+                       'Content-Type': 'application/json'
+                   }, body: JSON.stringify(values)
+               }
+                fetch("/ExData/AddExData", upload).then(res => Upload(dataList, index + 1));     
+            }
+            else {
+                DevExpress.ui.notify("Import Data From Excel Successfully !! Total Records : " + dataList.length, 'success', 5000);
+                $("#GRID").dxDataGrid("getDataSource").reload();
+            }
+        }
+    </script>
+}
