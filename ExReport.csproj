@@ -19,7 +19,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Asset\Excel\" />
+    <None Include="wwwroot\Asset\Excel\Template.xlsx" />
   </ItemGroup>
 
 </Project>

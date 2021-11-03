@@ -1,0 +1,74 @@
+<div class="">
+        <div id="chart" style="max-height: 99% !important; Width: 99% !important; margin: auto;">
+        </div>
+</div>
+
+@section scripts{
+
+
+    <script>
+        const sum_col = (input) => {
+            return {
+                column: input,
+                summaryType: "sum",
+                displayFormat: "{0}",
+                showInGroupFooter: true,
+                alignByColumn: true,
+                alignment: "center",
+            };
+        };
+    var obj = [ { "Workline": "FWS-L1","MOQty": 3000,"PlanQty": 500,"ExportQty": 200},
+                { "Workline": "FWS-L2","MOQty": 3000,"PlanQty": 500,"ExportQty": 200},
+                { "Workline": "FWS-L3","MOQty": 3000,"PlanQty": 500,"ExportQty": 200},
+                ];
+    </script>
+    <script>
+$(function(){
+    $("#chart").dxChart({
+        dataSource: obj,
+        commonSeriesSettings: {
+            argumentField: "Workline",
+            type: "bar",
+            hoverMode: "allArgumentPoints",
+            selectionMode: "allArgumentPoints",
+            label: {
+                visible: true,
+                position: "outside",
+                alignment:"center",
+                format: {
+                    type: "fixedPoint",
+                    precision: 0
+                }
+            }
+        },
+        series: [
+            { valueField: "PlanQty", name: `当天发料计划\nKế hoạch trong ngày`,color:"rgb(68,114,196)" },
+            { valueField: "ExportQty", name: `当天实际发料\nSố lượng phát thực tế`,color:"rgb(237,125,49)" },
+        ],
+        valueAxis:{
+            title:{
+                text:"数量",
+                font:{
+                    size:14,
+                }
+            }
+        },
+        title: `成型配料中心发料进度\nBiểu tiến độ phát liệu xưởng FWTSWC`,
+
+        legend: {
+            verticalAlignment: "bottom",
+            horizontalAlignment: "center"
+        },
+        "export": {
+            enabled: true
+        },
+        onPointClick: function (e) {
+            e.target.select();
+        }
+    });
+});
+    </script>
+
+
+
+}

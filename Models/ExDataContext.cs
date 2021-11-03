@@ -11,6 +11,10 @@ namespace ExReport.Models
         public ExDataContext(DbContextOptions<ExDataContext> options) : base(options)
         {
         }
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+        }
         public DbSet<ExData> ExDatas { get; set; }
+        public DbSet<TFWTSWCExportPlan> TFWTSWCExportPlans {get;set;}
     }
 }

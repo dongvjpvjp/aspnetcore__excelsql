@@ -1,0 +1,83 @@
+<div class="">
+    
+        <h2 class="text-center">成型配料中心发料进度表</h2>
+        <div id="GRID" style="max-height: 99% !important; Width: 99% !important; margin: auto;">
+        </div>
+        <style>
+            .ets__felixx--23092021[role="columnheader"] {
+                font-size: 9px;
+                font-weight:bold;
+                font-variant:small-caps;
+
+            }
+            .ets__felixx--23092021[role="gridcell"] {
+                word-break:break-all;
+                overflow-wrap:break-word;
+                font-size:8px;  
+            }
+           
+        </style>
+</div>
+
+@section scripts{
+    <script>
+        const sum_col = (input) => {
+            return {
+                column: input,
+                summaryType: "sum",
+                displayFormat: "{0}",
+                showInGroupFooter: true,
+                alignByColumn: true,
+                alignment: "center",
+            };
+            // SUMMARRY DATAGRID
+        };
+
+    const brheader = (header, info) => {  
+                $("<div>").html(info.column.caption.replace(/\n/g, "<br/>")).appendTo(header);  
+            } 
+      
+                //Function cho headercelltemplate (Insert break - new line)
+    var obj = [ { "Workline": "FWS-L1","StyleBody": "TR3"},
+     { "Workline": "FWS-L1","StyleBody": "TR2"},
+     { "Workline": "FWS-L1","StyleBody": "TR1"},
+     { "Workline": "FWS-L1","StyleBody": "TR4"},
+                { "Workline": "FWS-L2","StyleBody": "TR3"}
+                ];
+    var obj1= [...obj];
+    var temp = [];
+
+    </script>
+    <script>
+        var grid = $("#GRID").dxDataGrid({
+            // dataSource:  DevExpress.data.AspNet.createStore({ key: "ID", loadUrl: "/ExData/GetExData" }),
+            dataSource:  obj,
+            showBorders: true, showRowLines: true,
+            columnAutoWidth:true,
+            wordWrapEnabled: true,
+            columns: [
+                { dataField: "Workline", cssClass:"ets__felixx--23092021",minWidth:50,caption: `生产线 \nTên chuyền`, dataType: "string",
+                headerCellTemplate: brheader},
+                { dataField: "StyleBody", cssClass: "ets__felixx--23092021", minWidth: 50,caption: `形体\nHình thể`, dataType: "string",headerCellTemplate: brheader},
+               
+            ],onCellPrepared:(e)=>{
+                console.log(e);
+                if(e.rowType==="data"){
+                 obj1.forEach((item,index,arr) => {
+                    
+                    if(item.Workline===e.data.Workline) {
+                        temp.push({Workline:e.data.Workline,rowIndex:e.rowIndex,columnIndex:e.columnIndex});
+                        arr.splice(index,1);
+                    }
+                });
+                console.log(temp);
+                }
+               
+            }
+   
+            //FIX ERR: 1st hidden column  (GROUP})
+        }).dxDataGrid('instance');
+    </script>
+
+
+}

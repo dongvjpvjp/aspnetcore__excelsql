@@ -1,0 +1,113 @@
+<div class="">
+        <h2 class="text-center mt-1">成型配料中心发料进度计划表</h2>
+        <h2 class="text-center">Biểu kế hoạch phát liệu xưởng FWTSWC</h2>
+        <div class="text-center">
+            <a class="btn btn-sm btn-primary" href="~/Asset/Excel/T_FWTSWCExportPlan.xlsx"><i class="fas fa-download"></i>Download Excel Template File</a>
+            <button class="btn btn-sm btn-primary" onclick="$('#upload').click()"><i class="far fa-file-excel"></i>Upload Excel Data File </button>
+        </div>
+        <div id="GRID" class="container" style="max-height: 98vh !important;margin:auto; Width: 98vw !important ">
+        </div>
+</div>
+<form enctype="multipart/form-data" style="display:none">
+    <input id="upload" type=file name="files[]">
+</form>
+@section scripts{
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.8.0/jszip.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.8.0/xlsx.js"></script>
+    <script src="~/Asset/JS/Felixx_ults.js"></script>
+    <script>
+    
+       $('#upload').change(function (evt) {
+        var files = evt.target.files; // FileList object
+        if (files.length > 0) {
+            var xl2json = new ExcelToJSON();
+            xl2json.parseExcel(files[0], ParseExcelData);
+            evt.target.value = "";
+        }
+    });
+
+    async function ParseExcelData(result) {
+        console.log(result);
+        if (result.length == 0) {
+            alert(`Không có dữ liệu , xin kiểm tra lại !!!!!`);
+            return;
+        }
+        else {
+            result = result.slice(2).filter(x => x.hasOwnProperty("Workline"));
+            console.log(result);
+            Upload(result, 0);
+        }
+    }
+
+
+
+    function Upload(dataList, index) {
+        if (index < dataList.length) {
+            var values = JSON.stringify(dataList[index]);
+            $.post("/ExData/AddTFWTSWCExportPlan", { values: values }, () => {
+                Upload(dataList, index + 1)
+            });
+
+
+        }
+        else {
+            DevExpress.ui.notify("Import Data From Excel Successfully !! Total Records : " + dataList.length, 'success', 2000);
+            $("#GRID").dxDataGrid("getDataSource").reload();
+        }
+    }
+    
+    </script>
+    <script>
+        const sum_col = (input) => {
+            return {
+                column: input,
+                summaryType: "sum",
+                displayFormat: "{0}",
+                showInGroupFooter: true,
+                alignByColumn: true,
+                alignment: "center",
+            };
+        }
+    </script>
+    <script>
+        $("#GRID").dxDataGrid({
+            dataSource: DevExpress.data.AspNet.createStore({ key: "ID", loadUrl: "/ExData/GetTFWTSWCExportPlan", insertUrl: "/ExData/AddTFWTSWCExportPlan", updateUrl: "/ExData/UpdateTFWTSWCExportPlan", deleteUrl: "/ExData/DeleteTFWTSWCExportPlan" }),
+            columnAutoWidth: true,
+            sorting: {
+            mode: "single" 
+            },
+            showBorders: true, showRowLines: true, editing: {
+                allowAdding: true, allowDeleting: true, allowUpdating: true, mode: "popup", useIcons: true,
+                form: {
+                    colCount: 2,
+                    items: [
+                        { itemType: "simple", dataField: "Workline", validationRules: [{ type: "required", message: "The Workline field is required." }] },
+                        { itemType: "simple", dataField: "Date",validationRules: [{ type: "required", message: "The Date field is required." }] },
+                        { itemType: "simple", dataField: "MO", validationRules: [{ type: "required", message: "The MO field is required." }] },
+                        { itemType: "simple", dataField: "PlanQty", validationRules: [{ type: "required", message: "The PlanQty field is required." }] },]             
+                }
+            }, columns: [
+                { dataField: "Workline", sortIndex: 1, sortOrder: "desc" ,minWidth: 50, caption: `生产线\nTên chuyền`, dataType: "string", validationRules: [{ type: "required", message: "The Workline field is required." }] },
+                { dataField: "Date",sortIndex: 0, sortOrder: "desc" ,minWidth: 80, caption: `日期\nNgày`, dataType: "date", validationRules: [{ type: "required", message: "The Date field is required." }] },
+
+                { dataField: "MO", minWidth: 120, caption: `工单号\nĐơn sản xuất`, dataType: "string", validationRules: [{ type: "required", message: "The MO field is required." }] },
+                { dataField: "PlanQty", minWidth: 120, caption: `当天发料计划\nKế hoạch trong ngày`, dataType: "int", validationRules: [{ type: "required", message: "The PlanQty field is required." }] },
+
+               
+            ], onCellPrepared: (e) => {
+                e.cellElement.css("text-align", "center");
+                e.cellElement.css("color", "black");
+            
+
+                if (e.rowType === "header") {
+                    e.cellElement.css("background-color", "rgb(141,180,226)");
+                } 
+            }
+        });
+
+
+    </script>
+    
+
+   
+}

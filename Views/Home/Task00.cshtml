@@ -1,0 +1,136 @@
+<div class="">
+    
+        <h2 class="text-center">成型配料中心发料进度表</h2>
+        <div id="GRID" style="max-height: 99% !important; Width: 99% !important; margin: auto;">
+        </div>
+        <style>
+            .ets__felixx--23092021[role="columnheader"] {
+                font-size: 9px;
+                font-weight:bold;
+                font-variant:small-caps;
+
+            }
+            .ets__felixx--23092021[role="gridcell"] {
+                word-break:break-all;
+                overflow-wrap:break-word;
+                font-size:8px;  
+            }
+           
+        </style>
+</div>
+
+@section scripts{
+    <script>
+        const sum_col = (input) => {
+            return {
+                column: input,
+                summaryType: "sum",
+                displayFormat: "{0}",
+                showInGroupFooter: true,
+                alignByColumn: true,
+                alignment: "center",
+            };
+            // SUMMARRY DATAGRID
+        };
+
+    const brheader = (header, info) => {  
+                $("<div>").html(info.column.caption.replace(/\n/g, "<br/>")).appendTo(header);  
+            } 
+      
+                //Function cho headercelltemplate (Insert break - new line)
+    var obj = [ { "CustomerName": "FWS-L1","StyleBody": "TR3","MO": "89000000","SEX(M/W)": 'M',"MOQty": 3000,"BatchingStock": 500,"AccumulatedExport": 200},
+                { "CustomerName": "FWS-L2","StyleBody": "TR3","MO": "89000000","SEX(M/W)": 'M',"MOQty": 3000,"BatchingStock": 500,"AccumulatedExport": 200}
+                ];
+    </script>
+    <script>
+        var grid = $("#GRID").dxDataGrid({
+            // dataSource:  DevExpress.data.AspNet.createStore({ key: "ID", loadUrl: "/ExData/GetExData" }),
+            dataSource:  obj,
+            showBorders: true, showRowLines: true,
+            columnAutoWidth:true,
+            wordWrapEnabled: true,
+            columns: [
+                { dataField: "CustomerName", cssClass:"ets__felixx--23092021",minWidth:50,caption: `客名 \nTên khách hàng`, dataType: "string",
+                headerCellTemplate: brheader},
+                { dataField: "StyleBody", cssClass: "ets__felixx--23092021", minWidth: 50,caption: `形体\nHình thể`, dataType: "string",headerCellTemplate: brheader},
+                { dataField: "MO", cssClass: "ets__felixx--23092021", minWidth: 100,caption: `工单号\nĐơn sản xuất`, dataType: "string",headerCellTemplate: brheader},
+                { dataField: "StyleBody", cssClass: "ets__felixx--23092021", dataType: "string", groupIndex: 0 },
+                { dataField: "SEX(M/W)", cssClass: "ets__felixx--23092021",minWidth: 50,caption: `男女\nNam/Nữ`, dataType: "string",headerCellTemplate: brheader },
+                { dataField: "MOQty", cssClass: "ets__felixx--23092021", caption: `订单数\nSố lượng đơn hàng`, dataType: "string",headerCellTemplate: brheader  },
+                { dataField: "BatchingStock", cssClass: "ets__felixx--23092021",  caption:`剩余配套\nĐồng bộ tồn kho`,dataType: "number",headerCellTemplate: brheader },
+                { dataField: "AccumulatedExport", cssClass: "ets__felixx--23092021",  caption:`发料累计\nLũy kế phát liệu`, dataType: "number",headerCellTemplate: brheader},    
+                {
+                    caption: `欠配套\nĐồng bộ thiếu`, cssClass: "ets__felixx--23092021",  calculateCellValue: function (data) {
+                        return  data.MOQty - (data.BatchingStock + data.AccumulatedExport ) || 'Error'
+                    },headerCellTemplate: brheader
+                }, 
+            ],  summary: {
+                recalculateWhileEditing: true,
+                showBorders: true,
+                groupItems: [
+                    {
+                        column: "StyleBody",
+                        summaryType: "max",
+                        displayFormat: " {0} 小计 \n Tổng {0} ",
+                        minWidth: 150,
+                        showInColumn:"MO",
+                        showInGroupFooter: true,
+
+                    },
+                    sum_col("MOQty"),
+                    sum_col("BatchingStock"),
+                    sum_col("AccumulatedExport"),
+                    sum_col(`欠配套\nĐồng bộ thiếu`),
+
+                ],
+                totalItems: [
+                    {
+                        column: "CustomerName",
+                        summaryType: "max",
+                        displayFormat: ` 客户合计\nTổng theo khách hàng `,
+                        minWidth: 150,
+                        showInColumn:"MO",
+                        showInGroupFooter: true,
+                    },
+                    sum_col("MOQty"),
+                    sum_col("BatchingStock"),
+                    sum_col("AccumulatedExport"),
+                    sum_col(`欠配套\nĐồng bộ thiếu`),
+                ]
+
+            }, onCellPrepared: (e) => {
+                console.log(e);
+                e.cellElement.css("text-align", "center");
+                e.cellElement.css("color", "black");
+                if (e.rowType === "header") {
+                    e.cellElement.css("background-color", "#FF66FF");
+                    //
+                } 
+                else if (e.rowType === "group") {
+                    e.cellElement.css("display", "none");
+                    //
+                } else if(e.rowType==="data") e.columnIndex === 8 ? e.cellElement.css("color","red") :null;
+                 else if (e.rowType === "groupFooter") {
+                    e.columnIndex > 4 ? e.cellElement.css("border", "1px solid #ddd") : null;
+                    e.cellElement.css("background-color", "#F8CBAD");
+                } else if (e.rowType === "totalFooter") {
+                    e.cellElement.css("background-color", "#F8CBAD");
+                    e.cellElement.css("margin", "0px");
+                    e.columnIndex > 4 ? e.cellElement.css("border", "1px solid #ddd") : null;
+                }
+            },
+            onContentReady: (e) => {         
+                var e = document.querySelectorAll('col:first-child')       
+                for (i=0;i<e.length;i++){
+                    e[i].style.width = "1px";
+                    e[i].style.minWidth = "1px";
+                    e[i].style.maxWidth = "1px";
+                    console.log(e[i]);
+                }  
+            }     
+            //FIX ERR: 1st hidden column  (GROUP})
+        }).dxDataGrid('instance');
+    </script>
+
+
+}

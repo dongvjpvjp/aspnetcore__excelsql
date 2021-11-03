@@ -1,8 +1,172 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
-}
+﻿<div class="">
+        <h2 class="text-center">丝印摆料看板</h2>
+        <div id="GRID" style="max-height: 99vh !important; Width: 99vw !important; margin: auto;">
+        </div>
+        <style>
+            .custom[role="columnheader"] {
+                font-size: 9px;
+                font-weight:bold;
+                font-variant:small-caps;
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+            }
+            .custom[role="gridcell"] {
+                word-break:break-all;
+                overflow-wrap:break-word;
+                font-size:8px;
+                
+            }
+        </style>
 </div>
+
+@section scripts{
+    <script>
+        const sum_col = (input) => {
+            return {
+                column: input,
+                summaryType: "sum",
+                displayFormat: "{0}",
+                showInGroupFooter: true,
+                alignByColumn: true,
+                alignment: "center",
+            };
+        }
+    </script>
+    <script>
+        $("#GRID").dxDataGrid({
+            dataSource: DevExpress.data.AspNet.createStore({ key: "ID", loadUrl: "/ExData/GetExData" }),
+            showBorders: true, showRowLines: true,
+            repaintChangesOnly: true,
+
+            scrolling: {
+                columnRenderingMode: "virtual"
+            },
+            wordWrapEnabled: true,
+            columns: [
+                { dataField: "Department", cssClass:"custom", width:35,caption: "部门", dataType: "string", validationRules: [{ type: "required", message: "The Department field is required." }] },
+                { dataField: "Workshop", cssClass: "custom", minWidth: 65,caption: "车间", dataType: "string", validationRules: [{ type: "required", message: "The Workshop field is required." }] },
+
+                { dataField: "Line_no", cssClass: "custom", minWidth: 65,caption: "线别", dataType: "string", validationRules: [{ type: "required", message: "The Line_no field is required." }] },
+                { dataField: "Line_no", cssClass: "custom", minWidth: 65,dataType: "string", validationRules: [{ type: "required", message: "The Line_no field is required." }], groupIndex: 0 },
+
+                { dataField: "Emp_id", cssClass: "custom",minWidth: 65,caption: "工号", dataType: "string", validationRules: [{ type: "required", message: "The Emp_id field is required." }] },
+                { dataField: "Emp_name", cssClass: "custom", minWidth: 95, caption: "姓名", dataType: "string", validationRules: [{ type: "required", message: "The Emp_name field is required." }] },
+                { dataField: "F8T9", cssClass: "custom", dataType: "number", caption: "8:00-9:00" },
+                { dataField: "F9T10", cssClass: "custom", dataType: "number", caption: "9:00-10:00" },
+                { dataField: "F10T11", cssClass: "custom", dataType: "number", caption: "10:00-11:00" },
+                { dataField: "F11T12", cssClass: "custom", dataType: "number", caption: "11:00-12:00" },
+                { dataField: "F12T1230", cssClass: "custom",  dataType: "number", caption: "12:00-12:30" },
+                {
+                    dataField:"sang",
+                    caption: "上午小计", cssClass: "custom",  calculateCellValue: function (data) {
+                        data_mor = data.F8T9 + data.F9T10 + data.F10T11 + data.F11T12 + data.F12T1230
+                        return data_mor
+                    }
+                },
+                { dataField: "F1330T1430", cssClass: "custom",   dataType: "number", caption: "13:30-14:30" },
+                { dataField: "F1430T1530", cssClass: "custom",  dataType: "number", caption: "14:30-15:30" },
+                { dataField: "F1530T1630", cssClass: "custom",  dataType: "number", caption: "15:30-16:30" },
+                { dataField: "F1630T1730", cssClass: "custom",  dataType: "number", caption: "16:30-17:30" },
+                { dataField: "F1730T1830", cssClass: "custom",  dataType: "number", caption: "17:30-18:30" },
+
+                { dataField:"chieu",
+                    caption: "下午小计", cssClass: "custom",  calculateCellValue: function (data) {
+                        data_aft = data.F1330T1430 + data.F1430T1530 + data.F1530T1630 + data.F1630T1730 + data.F1730T1830
+                        return data_aft
+                    }
+                },
+
+                {dataField:"tong",
+                    caption: "汇总", cssClass: "custom",  calculateCellValue: function (data) {
+                        return data_mor + data_aft
+                    }
+                }
+            ], summary: {
+                recalculateWhileEditing: true,
+                showBorders: true,
+                groupItems: [
+                    {
+                        column: "Line_no",
+                        summaryType: "max",
+                        displayFormat: "{0}",
+                        minWidth: 150,
+                        showInGroupFooter: true,
+
+                    },
+                    sum_col("F8T9"),
+                    sum_col("F9T10"),
+                    sum_col("F10T11"),
+                    sum_col("F11T12"),
+                    sum_col("F12T1230"),
+                    sum_col("sang"),
+                    sum_col("F1330T1430"),
+                    sum_col("F1430T1530"),
+                    sum_col("F1530T1630"),
+                    sum_col("F1630T1730"),
+                    sum_col("F1730T1830"),
+                    sum_col("chieu"),
+                    sum_col("tong"),
+                ],
+                totalItems: [
+                    {
+                        column: "Line_no",
+                        summaryType: "max",
+                        displayFormat: " ESP 汇总 ",
+                        minWidth: 150,
+                        showInGroupFooter: true,
+                    },
+                    sum_col("F8T9"),
+                    sum_col("F9T10"),
+                    sum_col("F10T11"),
+                    sum_col("F11T12"),
+                    sum_col("F12T1230"),
+                    sum_col("sang"),
+                    sum_col("F1330T1430"),
+                    sum_col("F1430T1530"),
+                    sum_col("F1530T1630"),
+                    sum_col("F1630T1730"),
+                    sum_col("F1730T1830"),
+                    sum_col("chieu"),
+                    sum_col("tong"),
+                ]
+
+            }, onCellPrepared: (e) => {
+                e.cellElement.css("text-align", "center");
+                e.cellElement.css("color", "black");
+                if (e.rowType === "header") {
+                    e.cellElement.css("background-color", "rgb(141,180,226)");
+
+
+                    //
+                } 
+                else if (e.rowType === "group") {
+                    e.cellElement.css("display", "none");
+                    //
+                } else if (e.rowType === "groupFooter") {
+                    e.columnIndex > 5 ? e.cellElement.css("border", "1px solid #ddd") : null;
+                    e.cellElement.css("background-color", "rgb(253,233,217)");
+                } else if (e.rowType === "totalFooter") {
+                    e.cellElement.css("background-color", "rgb(250,191,143)");
+                    e.cellElement.css("margin", "0px");
+                    e.columnIndex > 5 ? e.cellElement.css("border", "1px solid #ddd") : null;
+                }
+            },
+            onContentReady: (e) => {         
+                // var elements = document.getElementsByClassName("dx-command-expand");
+                // for (i=0;i<elements.length;i++){
+                //     elements[i].style.width = "1px";
+                //     elements[i].style.minWidth = "1px";
+                //     elements[i].style.maxWidth = "1px";
+                //     console.log(elements[i]);
+                // }  
+                var e = document.querySelectorAll('col:first-child')       
+                for (i=0;i<e.length;i++){
+                    e[i].style.width = "1px";
+                    e[i].style.minWidth = "1px";
+                    e[i].style.maxWidth = "1px";
+                    console.log(e[i]);
+                }  
+            }     
+        });
+    </script>
+
+}

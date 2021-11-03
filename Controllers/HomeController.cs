@@ -18,16 +18,30 @@ namespace ExReport.Controllers
             _logger = logger;
         }
 
-        public IActionResult Index()
-        {
-            return RedirectPermanent("~/ExData/Temp");
-        }
-
-        public IActionResult Privacy()
+        public IActionResult Test()
         {
             return View();
         }
-
+        public IActionResult Index()
+        {
+            return View();
+        }
+        public IActionResult Task00()
+        {
+            return View();
+        }
+        public IActionResult Task00chart()
+        {
+            return View();
+        }
+        public IActionResult Task01()
+        {
+            return View();
+        }
+        public IActionResult Task01chart()
+        {
+            return View();
+        }
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {

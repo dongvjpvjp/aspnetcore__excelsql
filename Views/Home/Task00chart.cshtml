@@ -1,0 +1,74 @@
+<div class="">
+        <div id="chart" style="max-height: 99% !important; Width: 99% !important; margin: auto;">
+        </div>
+</div>
+
+@section scripts{
+
+
+    <script>
+        const sum_col = (input) => {
+            return {
+                column: input,
+                summaryType: "sum",
+                displayFormat: "{0}",
+                showInGroupFooter: true,
+                alignByColumn: true,
+                alignment: "center",
+            };
+        };
+  var obj = [ { "CustomerName": "FWS-L1","StyleBody": "TR3","MO": "89000000","SEX(M/W)": 'M',"MOQty": 3000,"BatchingStock": 500,"AccumulatedExport": 200,"DBT":400},
+            { "CustomerName": "FWS-L2","StyleBody": "TR4","MO": "89000000","SEX(M/W)": 'M',"MOQty": 3000,"BatchingStock": 500,"AccumulatedExport": 200,"DBT":400}
+                ];
+    </script>
+    <script>
+$(function(){
+    $("#chart").dxChart({
+        dataSource: obj,
+        commonSeriesSettings: {
+            argumentField: "StyleBody",
+            type:"stackedBar",
+            hoverMode: "allArgumentPoints",
+            selectionMode: "allArgumentPoints",
+            label: {
+                visible: true,
+                position: "inside",
+                alignment:"center",
+                format: {
+                    type: "fixedPoint",
+                    precision: 0
+                }
+            }
+        },
+        series: [
+            { valueField: "AccumulatedExport", name: "发料累计 Lũy kế phát liệu",color:"rgb(83,124,203)" },
+            { valueField: "BatchingStock", name: "剩余配套 Đồng bộ tồn kho",color:"rgb(244,130,59)" },
+            { valueField: "DBT", name: "欠配套 Đồng bộ thiếu",color:"rgb(166,166,166)" }
+        ],
+        valueAxis:{
+            title:{
+                text:"数量",
+                font:{
+                    size:14,
+                }
+            }
+        },
+        title: `成型配套情况`,
+
+        legend: {
+            verticalAlignment: "bottom",
+            horizontalAlignment: "center"
+        },
+        "export": {
+            enabled: true
+        },
+        onPointClick: function (e) {
+            e.target.select();
+        }
+    });
+});
+    </script>
+
+
+
+}
